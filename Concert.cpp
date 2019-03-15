@@ -112,7 +112,7 @@ std::ostream& operator<<(std::ostream& out, const Concert& x)
 
 std::istream& operator>>(std::istream& in, Concert& x)
 {
-	char *buff = new char[100];
+	auto *buff = new char[100];
 
 	x.add_new_event();
 	in.getline(buff, 100);
@@ -151,7 +151,7 @@ void read_line(char* buff, Concert& x)
 	tickets = strtol(tickets_char, nullptr, 10);
 	j = 0;
 	i++;
-	while (i < strlen(buff))
+	while (i < static_cast<int>(strlen(buff)))
 	{
 		date[j] = buff[i];
 		j++;
@@ -161,5 +161,4 @@ void read_line(char* buff, Concert& x)
 	x.set_event(name, capacity, tickets, date);
 	delete[] name;
 	delete[] date;
-
 }
