@@ -93,10 +93,7 @@ Event Concert::operator[] (int i) const
 
 Concert::~Concert()
 {
-	if (this != nullptr)
-	{
-		delete[] events_;
-	}
+	delete[] events_;
 }
 
 std::ostream& operator<<(std::ostream& out, const Concert& x)
@@ -112,53 +109,20 @@ std::ostream& operator<<(std::ostream& out, const Concert& x)
 
 std::istream& operator>>(std::istream& in, Concert& x)
 {
-	auto *buff = new char[100];
+	char buff[100];
+	char* ptr = nullptr;
+	auto capacity = 0, tickets = 0;
+	auto *name = new char[50];
+	auto *date = new char[20];
 
 	x.add_new_event();
 	in.getline(buff, 100);
-	read_line(buff, x);
-	delete[] buff;
-	return (in);
-}
-void read_line(char* buff, Concert& x)
-{
-	auto i = 0, j = 0, capacity = 0, tickets = 0;
-	auto *name = new char[50];
-	auto *date = new char[20];
-	char tickets_char[10], capacity_char[10];
-	while (buff[i] != ';')
-	{
-		name[i] = buff[i];
-		i++;
-	}
-	name[i] = '\0';
-	i++;
-	while (buff[i] != ';')
-	{
-		capacity_char[j] = buff[i];
-		j++;
-		i++;
-	}
-	capacity = strtol(capacity_char, nullptr, 10);
-	j = 0;
-	i++;
-	while (buff[i] != ';')
-	{
-		tickets_char[j] = buff[i];
-		j++;
-		i++;
-	}
-	tickets = strtol(tickets_char, nullptr, 10);
-	j = 0;
-	i++;
-	while (i < static_cast<int>(strlen(buff)))
-	{
-		date[j] = buff[i];
-		j++;
-		i++;
-	}
-	date[j] = '\0';
+	strcpy_s(name, 50, strtok_s(buff, ";", &ptr));
+	capacity = strtol(strtok_s(nullptr, ";", &ptr), nullptr, 10);
+	tickets = strtol(strtok_s(nullptr, ";", &ptr), nullptr, 10);
+	strcpy_s(date, 20, strtok_s(nullptr, "\n", &ptr));
 	x.set_event(name, capacity, tickets, date);
 	delete[] name;
 	delete[] date;
+	return (in);
 }

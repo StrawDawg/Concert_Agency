@@ -22,7 +22,6 @@ class Concert
 
 	friend std::ostream& operator<<(std::ostream& out, const Concert& x);
 	friend  std::istream& operator>>(std::istream& in, Concert& x);
-	friend void read_line(char* buff, Concert& x);
 
 public:
 	Concert();
