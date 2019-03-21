@@ -1,89 +1,10 @@
 #include "concerts.h"
-
-Concert::Concert()
-{
-	amount_ = 0;
-	events_ = new Event[amount_ + 1];
-}
-
-Concert::Concert(Concert const& ptr)
-{
-	amount_ = ptr.amount_;
-	events_ = new Event[amount_];
-	for (auto i = 0; i < amount_; i++)
-	{
-		events_[i] = ptr.events_[i];
-	}
-}
-
-Concert::Concert(Concert&& ptr) noexcept
-{
-	amount_ = ptr.amount_;
-	events_ = ptr.events_;
-	ptr.events_ = nullptr;
-}
-
-void Concert::add_new_event()
-{
-	if (amount_ == 0)
-	{
-		amount_++;
-	}
-	else
-	{
-		auto* temp = new Event[++amount_];
-		for (auto i = 0; i < amount_ - 1; i++)
-		{
-			temp[i] = events_[i];
-		}
-		delete[] events_;
-		events_ = new Event[amount_];
-		for (auto i = 0; i < amount_; i++)
-		{
-			events_[i] = temp[i];
-
-		}
-		delete[] temp;
-	}
-}
-
-void Concert::set_event(char name[], int capacity, int tickets, char date[]) const
-{
-	auto  const i = amount_ - 1;
-	events_[i].name = _strdup(name);
-	events_[i].capacity = capacity;
-	events_[i].tickets_left = tickets;
-	events_[i].date = _strdup(date);
-
-}
-
-void Concert::book_ticket(int i) const
-{
-	if(i > amount_)
-	{
-		throw std::exception("Wrong index");
-	}
-	else
-	{
-		if (events_[i - 1].tickets_left != 0)
-		{
-			events_[i - 1].tickets_left--;
-		}
-		else
-		{
-			throw std::exception("There are no tickets left:(");
-		}
-	}
-}
+#include  <algorithm>
+#include <iomanip>
 
 int Concert::quantity_of_concerts() const
 {
 	return(amount_);
-}
-
-Event* Concert::events() const
-{
-	return(events_);
 }
 
 Event Concert::operator[] (int i) const
@@ -91,38 +12,58 @@ Event Concert::operator[] (int i) const
 	return(this->events_[i]);
 }
 
-Concert::~Concert()
+void Concert::sort_by_name()
 {
-	delete[] events_;
+	std::sort(events_.begin(), events_.end(), [](const Event e1, const Event e2) -> bool
+	{
+		return e1.name < e2.name;
+	});
 }
 
-std::ostream& operator<<(std::ostream& out, const Concert& x)
+std::vector<Event>::iterator Concert::begin()
 {
+	return events_.begin();
+}
+
+std::vector<Event>::iterator Concert::end()
+{
+	return events_.end();
+}
+
+std::ostream& operator<<(std::ostream& out, Concert const& x)
+{
+	auto i = 1;
 	out << "\nConcerts:\n";
-	for (auto i = 0; i < x.amount_; i++)
+	for (const auto& e : x.events_)
 	{
-		out << i + 1 << ") \"" << x.events_[i].name << "\" " << x.events_[i].capacity
-			<< " " << x.events_[i].tickets_left << " " << x.events_[i].date << std::endl;
+		out << i << ") \"" << e.name << "\" " << e.capacity << " " << e.tickets_left << " " << e.date << "\n";
+		i++;
 	}
-	return (out);
+	return out;
 }
 
 std::istream& operator>>(std::istream& in, Concert& x)
 {
-	char buff[100];
-	char* ptr = nullptr;
-	auto capacity = 0, tickets = 0;
-	auto *name = new char[50];
-	auto *date = new char[20];
+	std::string line;
+	std::getline(in, line);
 
-	x.add_new_event();
-	in.getline(buff, 100);
-	strcpy_s(name, 50, strtok_s(buff, ";", &ptr));
-	capacity = strtol(strtok_s(nullptr, ";", &ptr), nullptr, 10);
-	tickets = strtol(strtok_s(nullptr, ";", &ptr), nullptr, 10);
-	strcpy_s(date, 20, strtok_s(nullptr, "\n", &ptr));
-	x.set_event(name, capacity, tickets, date);
-	delete[] name;
-	delete[] date;
-	return (in);
+	size_t pos = 0;
+	std::string parts[4];
+
+	for (auto& part : parts)
+	{
+		pos = line.find(';');
+		part = line.substr(0, pos);
+		line.erase(0, pos + 1);
+	}
+
+	Event e;
+	e.name = parts[0];
+	e.capacity = std::stoi(parts[1]);
+	e.tickets_left = std::stoi(parts[2]);
+	e.date = parts[3];
+
+	x.events_.push_back(e);
+
+	return in;
 }

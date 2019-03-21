@@ -22,8 +22,7 @@ int main()
 	std::cout << "Enter new concert:\n";
 	std::cin >> con;
 	std::cout << con;
-	con.book_ticket(3);
-	qsort(con.events(), con.quantity_of_concerts(), sizeof(Event), comp_concerts);
+	con.sort_by_name();
 	std::cout << con;
 	system("pause");
 	return(0);
